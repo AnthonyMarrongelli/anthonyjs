@@ -13,14 +13,14 @@
 <meta property="og:site_name" content="anthonyjs">
 <meta property="og:description" content="they told you to touch grass, but did you listen? (you will need your DiceBadge for this challenge) dicetrix.dicec.tf ChallengeImages of the badge:  Visitng the challenge website presents us with this">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://anthony-js.info/public/images/dicetrix-badge.png">
-<meta property="og:image" content="http://anthony-js.info/public/images/dicetrix-initial.PNG">
-<meta property="og:image" content="http://anthony-js.info/public/images/dicetrix-demo.gif">
+<meta property="og:image" content="http://anthony-js.info/images/dicetrix-badge.png">
+<meta property="og:image" content="http://anthony-js.info/images/dicetrix-initial.PNG">
+<meta property="og:image" content="http://anthony-js.info/images/dicetrix-demo.gif">
 <meta property="article:published_time" content="2025-07-13T22:09:55.198Z">
-<meta property="article:modified_time" content="2025-07-28T23:07:58.729Z">
+<meta property="article:modified_time" content="2025-07-28T23:13:53.207Z">
 <meta property="article:author" content="anthonyjs">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://anthony-js.info/public/images/dicetrix-badge.png">
+<meta name="twitter:image" content="http://anthony-js.info/images/dicetrix-badge.png">
     
     
       
@@ -156,11 +156,11 @@
 <p>(you will need your DiceBadge for this challenge)</p>
 <p>dicetrix.dicec.tf</p>
 <h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Images of the badge:</p>
-<p><img src="/../../public/images/dicetrix-badge.png" alt="Badge Picture"></p>
+<p><img src="/images/dicetrix-badge.png" alt="Badge Picture"></p>
 <p>Visitng the challenge website presents us with this webpage:</p>
-<p><img src="/../../public/images/dicetrix-initial.PNG" alt="Initial Webpage"></p>
+<p><img src="/images/dicetrix-initial.PNG" alt="Initial Webpage"></p>
 <p>Here we are prompted with connecting our badge.</p>
-<p><img src="/../../public/images/dicetrix-demo.gif" alt="Demo"></p>
+<p><img src="/images/dicetrix-demo.gif" alt="Demo"></p>
 <p>After doing so we can see a few things here. We are able to move around in this enclosure that the dice is in. There is a red box that seems to be a escape where we can continue to move forward towards a golden ball, which assumably is our goal. Once entering that box though we can see that our next move is blocked and prevents us from moving forward.</p>
 <p>Looking at the web page source code we can see a snippet in the javascript that hints at our win condition:</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">handleLine</span>(<span class="params">line</span>)&#123;</span><br><span class="line">      <span class="keyword">if</span> (!line) <span class="keyword">return</span>;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> msg = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(line);</span><br><span class="line">        <span class="keyword">switch</span>(msg.<span class="property">type</span>)&#123;</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&#x27;start&#x27;</span>:</span><br><span class="line">            ...</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&#x27;facing&#x27;</span>: </span><br><span class="line">            ...</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&#x27;move&#x27;</span>: </span><br><span class="line">            ...</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&#x27;led_on&#x27;</span>:</span><br><span class="line">            ...</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&#x27;led_off&#x27;</span>:</span><br><span class="line">            ...</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&#x27;bad&#x27;</span>:</span><br><span class="line">            ...</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&#x27;blocked&#x27;</span>:</span><br><span class="line">            ...</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&#x27;flag&#x27;</span>: &#123;</span><br><span class="line">            <span class="title function_">alert</span>(<span class="string">`Flag received: <span class="subst">$&#123;msg.digest&#125;</span>`</span>);</span><br><span class="line">            <span class="keyword">break</span>; &#125;</span><br><span class="line">          <span class="keyword">case</span> <span class="string">&#x27;too_slow&#x27;</span>:</span><br><span class="line">            ...</span><br><span class="line">          <span class="attr">default</span>:</span><br><span class="line">            <span class="title function_">log</span>(<span class="string">&#x27;Unknown msg &#x27;</span>+line);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;<span class="keyword">catch</span>(e)&#123; <span class="comment">/* Not a JSON line, ignore */</span> &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
